@@ -7,10 +7,8 @@ import 'global.dart';
 
 //get suggestion list from moji
 Future<List> fetchSuggestionList(String query) async {
-  final response = await http.post(
-    "https://api.mojidict.com/parse/functions/search_v3",
-    headers: MOJISEARCHHEADERS,
-    body: json.encode({
+  final searchBody = 
+    json.encode({
       "searchText": query,
       "needWords": true,
       "langEnv":"zh-CN_ja",
@@ -18,8 +16,18 @@ Future<List> fetchSuggestionList(String query) async {
       "_ClientVersion":"js2.7.1",
       "_InstallationId":"a956f4f4-97e1-5436-d673-c46105a519f5",
       "_SessionToken": mojiSessionToken
-    })
+    });
+  var response = await http.post(
+    "https://api.mojidict.com/parse/functions/search_v3",
+    headers: MOJISEARCHHEADERS,
+    body: searchBody
   );
+  if (response.statusCode == 502) //do a second post in case temporary network error
+    response = await http.post(
+      "https://api.mojidict.com/parse/functions/search_v3",
+      headers: MOJISEARCHHEADERS,
+      body: searchBody
+    );
   if (response.statusCode == 200) {
     List<BriefWord> result = [];
     Map<String, dynamic> jsonified = json.decode(response.body);
@@ -29,10 +37,11 @@ Future<List> fetchSuggestionList(String query) async {
         result.add(BriefWord.fromJson(item));
       }
     }
-    //this.suggestionList = result;
     return result;
+  } else if (response.statusCode == 400) {  //invalid session token
+    throw(400);
   } else {
-    throw("failed to connect with moji: ${response.statusCode}");
+    throw("failed to connect with moji: ${response.statusCode}, ${response.body}");
   }
 }
 
@@ -264,7 +273,10 @@ Future<String> updateSessionTokenFromRemote() async {
     }
   );
   if (response.statusCode == 200) {
-    return json.decode(response.body)["sessionToken"];
+    String newSessionToken =  json.decode(response.body)["sessionToken"];
+    mojiSessionToken = newSessionToken;
+    await changeSessionToken(newSessionToken);
+    return newSessionToken;
   } else {
     throw('''Failed to update session Token, try manully.
           Status Code: ${response.statusCode}''');

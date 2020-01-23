@@ -3,18 +3,15 @@ import 'package:JapanK/datamodel.dart';
 
 //error handler
 class ErrorHandler extends StatelessWidget {
-  ErrorHandler({@required this.error, this.remoteError = false});
+  ErrorHandler({@required this.error});
   final error;
-  final bool remoteError;
   @override
   Widget build(BuildContext context) {
-    if (remoteError) {
+    if (error == 400) {
       return FutureBuilder<String>(
         future: updateSessionTokenFromRemote(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            String newSessionToken = snapshot.data;
-            changeSessionToken(newSessionToken);
             return Center(
               child: Text(
                 "Session token updated successfully, please refresh"
@@ -27,7 +24,7 @@ class ErrorHandler extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                'An error occurred but we are trying to update ' +  
+                'An error occurred, but we are trying to update ' +  
                 'session token from moji, please be patient',
                 softWrap: true,
               ),
@@ -37,7 +34,7 @@ class ErrorHandler extends StatelessWidget {
         }
       );
     } else {
-      return Text("Oops! An error occurred : ${this.error}");
+      return Center(child: Text("Oops! An error occurred : ${this.error}"));
     }
   }
 }

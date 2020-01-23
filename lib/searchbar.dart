@@ -105,23 +105,24 @@ class SearchBarDelegate extends SearchDelegate<String> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<BriefWord> suggestionList = snapshot.data;
-          if (suggestionList.length != 0)
+          if (suggestionList.length != 0) {
             this.curId = suggestionList[0].id;
-          return ListView.builder(
-            itemCount: suggestionList.length,
-            itemBuilder: (context, index) => WordItem(
-              word: suggestionList[index],
-              onTap: () {
-                this.query = suggestionList[index].spell;
-                if (suggestionList.length != 0)
-                  this.curId = suggestionList[index].id;
-                else this.curId = null;
-                showResults(context);
-              },
-            )
-          );
+            return ListView.builder(
+              itemCount: suggestionList.length,
+              itemBuilder: (context, index) => WordItem(
+                word: suggestionList[index],
+                onTap: () {
+                  this.query = suggestionList[index].spell;
+                  if (suggestionList.length != 0)
+                    this.curId = suggestionList[index].id;
+                  else this.curId = null;
+                  showResults(context);
+                },
+              )
+            );
+          } else return Center(child: Text("No result found"));
         } else if (snapshot.hasError) {
-          return ErrorHandler(error: snapshot.error, remoteError: true);
+          return ErrorHandler(error: snapshot.error);
         }
         return Center(child: CircularProgressIndicator());
       }

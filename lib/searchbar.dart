@@ -104,7 +104,7 @@ class SearchBarDelegate extends SearchDelegate<String> {
       future: futureSuggestionList,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          List<BriefWord> suggestionList = snapshot.data;
+          List suggestionList = snapshot.data;
           if (suggestionList.length != 0) {
             this.curId = suggestionList[0].id;
             return ListView.builder(

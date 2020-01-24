@@ -1,3 +1,4 @@
+import 'package:JapanK/noteicon.dart';
 import 'package:flutter/material.dart';
 import 'package:JapanK/global.dart';
 import 'package:JapanK/datamodel.dart';
@@ -25,9 +26,8 @@ class WordCard extends StatelessWidget {
                   )
                 )
             ),
-            Flexible(
-              child: Star(wordInfo.id)
-            )
+            Flexible(child: Star(wordInfo.id)),
+            Flexible(child: NoteIcon(wordInfo.id))
           ]
         ),
         Text(

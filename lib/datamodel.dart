@@ -7,6 +7,14 @@ import 'global.dart';
 
 //get suggestion list from moji
 Future<List> fetchSuggestionList(String query) async {
+  print("query: " + query);
+  if (RegExp(r'^\s+').hasMatch(query) || query == "") {
+    List<String> ids = await getHistory();
+    List<Post> words = [];
+    for (String id in ids) 
+      words.add(await fetchPost(id));
+    return words;
+  }
   final searchBody = 
     json.encode({
       "searchText": query,
@@ -71,17 +79,25 @@ class BriefWord {
 
 //fetch information of the word
 Future<Post> fetchPost(String wordId) async {
-  final response = await http.post(
-    "https://api.mojidict.com/parse/functions/fetchWord_v2",
-    headers: MOJIFETCHHEADERS,
-    body: {
+  final _body = 
+    {
       "wordId": wordId,
       "_ApplicationId": "E62VyFVLMiW7kvbtVq3p",
       "_ClientVersion": "js2.7.1",
       "_InstallationId": "a956f4f4-97e1-5436-d673-c46105a519f5",
       //"_SessionToken": "r:f194386ae529f49c72f3e7160c3dcada"
-    }
+    };
+  var response = await http.post(
+    "https://api.mojidict.com/parse/functions/fetchWord_v2",
+    headers: MOJIFETCHHEADERS,
+    body: _body
   );
+  if (response.statusCode == 502)   //second attempt in case temporary networkerror
+    response = await http.post(
+      "https://api.mojidict.com/parse/functions/fetchWord_v2",
+      headers: MOJIFETCHHEADERS,
+      body: _body
+    );
   if (response.statusCode == 200) {
     var wordInfoMap = json.decode(response.body)["result"];
     if (wordInfoMap == null) throw Exception("Word with this id cannot be found");
@@ -185,6 +201,23 @@ class Example {
   }
 }
 
+addHistory(String wordId) async {
+  SharedPreferences storage = await SharedPreferences.getInstance();
+  List<String> history = storage.getStringList("History");
+  if (history == null) history = [];
+  if (history.contains(wordId)) history.remove(wordId); //if already exists, first remove then insert
+  history.insert(0, wordId);
+  if (history.length > globalHistoryCnt) history.removeLast();
+  await storage.setStringList("History", history);
+}
+
+Future<List<String>> getHistory() async {
+  SharedPreferences storage = await SharedPreferences.getInstance();
+  List<String> history = storage.getStringList("History");
+  if (history == null) history = [];
+  return history;
+}
+
 addCollectionFromString(String items) async {
   List<String> allItems = items.split(RegExp(r'\s+'));
   RegExp isNum = RegExp(r'[0-9]+');
@@ -233,9 +266,9 @@ Future<Set<String>> allInCollection() async {
   return collection.toSet();
 }
 
-Future<String> outportCollection(String name) async {
+Future<String> outportCollection(String fileName) async {
   String directory = (await getApplicationDocumentsDirectory()).path;
-  File file = File(directory + '\\' + name);
+  File file = File(directory + '\\' + fileName);
   print(file.path);
   if (!file.existsSync()) await file.create();
   Set<String> items = await allInCollection();
@@ -281,4 +314,63 @@ Future<String> updateSessionTokenFromRemote() async {
     throw('''Failed to update session Token, try manully.
           Status Code: ${response.statusCode}''');
   }
+}
+
+Future<String> getNoteById(String wordId) async {
+  SharedPreferences storage = await SharedPreferences.getInstance();
+  String note = storage.getString(wordId);
+  if (note == null) note = "";
+  return note;
+}
+
+Future<void> saveNoteById(String wordId, String content) async {
+  SharedPreferences storage = await SharedPreferences.getInstance();
+  await storage.setString(wordId, content);
+  List<String> allNotes = storage.getStringList("Notes");
+  if (allNotes == null) allNotes = [];
+  if (!allNotes.contains(wordId)) allNotes.add(wordId);
+  print(content);
+  String realContent = json.decode(content)[0]["insert"];
+  if (RegExp(r'^\s+').hasMatch(realContent)) {
+    storage.remove(wordId);
+    allNotes.remove(wordId);
+  }
+  await storage.setStringList("Notes", allNotes);
+}
+
+Future<List<String>> allNotesId() async {
+  SharedPreferences storage = await SharedPreferences.getInstance();
+  List<String> result = storage.getStringList("Notes");
+  if (result == null) result = [];
+  return result;
+}
+
+Future<void> addNotesFromString(String jsonData) async {
+  SharedPreferences storage = await SharedPreferences.getInstance();
+  Map<String, dynamic> data = json.decode(jsonData);
+  await storage.setStringList("Notes", data["Notes"]);
+  for (var item in data["Contents"]) 
+    await storage.setString(item[0], item[1]);
+}
+
+Future<String> outportNotesToString() async {
+  SharedPreferences storage = await SharedPreferences.getInstance();
+  Map<String, dynamic> data = {
+    "Notes": [],
+    "Contents": []
+  };
+  data["Notes"] = storage.getStringList("Notes");
+  for (String id in data["Notes"]) {
+    data["Contents"].add([id, storage.getString(id)]);
+  }
+  return json.encode(data);
+}
+
+Future<String> outportNotesToFile(String fileName) async {
+  String directory = (await getApplicationDocumentsDirectory()).path;
+  File file = File(directory + '\\' + fileName);
+  print(file.path);
+  if (!file.existsSync()) await file.create();
+  await file.writeAsString(await outportNotesToString());
+  return file.path;
 }

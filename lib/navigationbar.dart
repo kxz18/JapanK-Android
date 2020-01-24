@@ -1,3 +1,4 @@
+import 'package:JapanK/notespage.dart';
 import 'package:flutter/material.dart';
 import 'package:JapanK/global.dart';
 import 'package:JapanK/settingspage.dart';
@@ -21,9 +22,10 @@ class NavigationBar extends AppBar {
 
 class Menu extends Drawer {
   final BuildContext context;
+  final bool onNotes;
   final bool onCollection;
   final bool onSettings;
-  Menu(this.context, {this.onCollection = false, this.onSettings = false }) : super(
+  Menu(this.context, {this.onNotes = false, this.onCollection = false, this.onSettings = false }) : super(
     child: ListView(
       padding: EdgeInsets.zero,
       children: <Widget>[
@@ -41,6 +43,14 @@ class Menu extends Drawer {
             while (Navigator.canPop(context))
               Navigator.pop(context);
           },
+        ),
+        ListTile(
+          leading: Icon(Icons.speaker_notes),
+          title: Text("Notes"),
+          enabled: !onNotes,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => NotesPage())
+          ),
         ),
         ListTile(
           leading: Icon(Icons.star),

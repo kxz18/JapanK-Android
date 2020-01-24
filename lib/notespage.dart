@@ -3,55 +3,42 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:JapanK/global.dart';
 import 'package:JapanK/navigationbar.dart';
-import 'package:JapanK/recitepage.dart';
-import 'package:JapanK/searchbar.dart';
 import 'datamodel.dart';
 import 'package:JapanK/worditem.dart';
 import 'package:JapanK/utils.dart';
 
-enum Action {recite, import, outport}
+enum Action {import, outport}
 enum Method {clipboard, file}
 
-class CollectionPage extends StatefulWidget {
+class NotesPage extends StatefulWidget {
   @override
-  _CollectionPageState createState() => _CollectionPageState();
+  _NotesPageState createState() => _NotesPageState();
 }
 
-class _CollectionPageState extends State<CollectionPage> {
-  Future<Set<String>> allWordId;
+class _NotesPageState extends State<NotesPage> {
+  Future<List<String>> allWordId;
 
   @override
   void initState() {
     super.initState();
-    allWordId = allInCollection();
+    allWordId = allNotesId();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Set<String>> (
+    return FutureBuilder<List<String>> (
       future: allWordId,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return Scaffold(
             appBar: NavigationBar(
               context, 
-              title: "Collection",
+              title: "Notes",
               fontFactor: 1.5,
               actions: [
-                IconButton(
-                  icon: Icon(Icons.arrow_back),
-                  tooltip: "Back",
-                  onPressed: () => Navigator.pop(context)
-                ),
-                SearchIcon(),
                 PopupMenuButton<Action> (
                   onSelected: (result) {
                     switch (result) {
-                      case Action.recite: 
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => RecitePage(ids: snapshot.data))
-                        );
-                        break;
                       case Action.import:
                         _askedToIOport(import: true);
                         break;
@@ -61,13 +48,6 @@ class _CollectionPageState extends State<CollectionPage> {
                     }
                   },
                   itemBuilder: (context) => <PopupMenuEntry<Action>>[
-                    const PopupMenuItem<Action>(
-                      value: Action.recite,
-                      child: ListTile(
-                        leading: Icon(Icons.library_books),
-                        title: Text("Recite words"),
-                      ),
-                    ),
                     const PopupMenuItem<Action>(
                       value: Action.import,
                       child: ListTile(
@@ -86,15 +66,14 @@ class _CollectionPageState extends State<CollectionPage> {
                 )
               ]
             ),
-            drawer: Menu(context, onCollection: true),
             body: Container(
               margin: EdgeInsets.only(top: STDFONTSIZE),
               child: RefreshIndicator(
                 onRefresh: updateCollection,
                 child: ListView(
                   children: <Widget>[
-                    wordlistBuilder(snapshot.data)
-                  ]
+                    wordlistBuilder(snapshot.data.toSet())
+                  ],
                 ) 
               )
             )
@@ -108,7 +87,7 @@ class _CollectionPageState extends State<CollectionPage> {
 
   Future<void> updateCollection() async {
     setState(() {
-      this.allWordId = allInCollection();
+      this.allWordId = allNotesId();
     });
     return null;
   }
@@ -142,21 +121,19 @@ class _CollectionPageState extends State<CollectionPage> {
         if (import) {
           await Clipboard.getData(Clipboard.kTextPlain)
           .then((onValue) {
-            addCollectionFromString(onValue.text);
+            addNotesFromString(onValue.text);
             Toast.toast(context, msg: "Successfully imported, drag down to refresh");
           })
           .catchError((error) {
             Toast.toast(context, msg: "Failed: $error");
           });
           setState(() {
-            allWordId = allInCollection();
+            allWordId = allNotesId();
           });
         } else {
-          await allInCollection()
-          .then((items){
-            String allItems = "";
-            for (String item in items) allItems += item + "\n";
-            Clipboard.setData(ClipboardData(text: allItems));
+          await outportNotesToString()
+          .then((dataString){
+            Clipboard.setData(ClipboardData(text: dataString));
             Toast.toast(context, msg: "Successfully outport to clipboard");
           })
           .catchError((error) {
@@ -169,9 +146,9 @@ class _CollectionPageState extends State<CollectionPage> {
           FilePicker.getFile()
            .then((file) {
              if (file == null) return;
-             addCollectionFromString(file.readAsStringSync());
+             addNotesFromString(file.readAsStringSync());
              setState(() {
-               allWordId = allInCollection();
+               allWordId = allNotesId();
              });
              Toast.toast(context, msg: "Successfully imported from ${file.path}");
            })
@@ -179,7 +156,7 @@ class _CollectionPageState extends State<CollectionPage> {
              Toast.toast(context, msg: "$error");
            });
         } else {
-          outportCollection("collection_outport.txt")
+          outportNotesToFile("notes_outport.txt")
           .then((filePath) {
             Toast.toast(context, msg: "Outport to $filePath");
           })

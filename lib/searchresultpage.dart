@@ -20,6 +20,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
   void initState() {
     super.initState();
     this.wordData = fetchPost(this.id);
+    addHistory(this.id);
   }
 
   @override

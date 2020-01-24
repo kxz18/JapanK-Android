@@ -28,7 +28,7 @@ dependencies:
   file_picker: ^1.4.3+2
   path_provider: ^1.5.1
   webview_flutter: ^0.3.19+5
-
+  zefyr: ^0.10.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

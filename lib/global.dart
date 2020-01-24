@@ -47,6 +47,7 @@ const Map<String, String> MOJILOGINHEADERS = {
 };
 
 const double STDFONTSIZE = 15;
+int globalHistoryCnt = 20;
 
 String mojiSessionToken = "r:544dda15b81ed00a42b8a33b1586788e";
 String mojiAccount = "302702295@qq.com";

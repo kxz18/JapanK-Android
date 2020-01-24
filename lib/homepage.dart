@@ -33,8 +33,10 @@ class HomePage extends StatelessWidget {
         children: <Widget>[
           SearchBar(),
           ListTile(
-            leading: Icon(Icons.book),
-            title: Text("一緒に　日本語を　勉強しましょう"),
+            title: Text(
+              "一緒に　日本語を　勉強しましょう",
+              textAlign: TextAlign.center,
+            ),
           ),
           Expanded(child: NewsList())
         ],

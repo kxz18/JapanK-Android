@@ -6,14 +6,12 @@ import 'package:JapanK/utils.dart';
 class NoteIcon extends StatefulWidget {
   final String wordId;
   NoteIcon(this.wordId);
-  
+
   @override
   _NoteIconState createState() => _NoteIconState(wordId);
-
 }
 
 class _NoteIconState extends State<NoteIcon> {
-
   String wordId;
   Future<String> notes;
 
@@ -31,9 +29,8 @@ class _NoteIconState extends State<NoteIcon> {
       icon: Icon(Icons.description),
       tooltip: "Add notes",
       onPressed: () {
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) {
-            return FutureBuilder<String>(
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+          return FutureBuilder<String>(
               future: getNoteById(wordId),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
@@ -41,16 +38,17 @@ class _NoteIconState extends State<NoteIcon> {
                     placeholder: snapshot.data,
                     save: (content) {
                       saveNoteById(wordId, content)
-                       .then((onValue) => Toast.toast(context, msg: "Saved"))
-                       .catchError((onError) => Toast.toast(context, msg: onError));
+                          .then((onValue) => Toast.toast(context, msg: "Saved"))
+                          .catchError(
+                              (onError) => Toast.toast(context, msg: onError));
                     },
                   );
-                } else if (snapshot.hasError) return ErrorHandler(error: snapshot.error);
-                else return Center(child: CircularProgressIndicator());
-              }
-            );
-          }
-        ));
+                } else if (snapshot.hasError)
+                  return ErrorHandler(error: snapshot.error);
+                else
+                  return Center(child: CircularProgressIndicator());
+              });
+        }));
       },
     );
   }

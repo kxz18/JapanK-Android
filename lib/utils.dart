@@ -9,37 +9,36 @@ class ErrorHandler extends StatelessWidget {
   Widget build(BuildContext context) {
     if (error == 400) {
       return FutureBuilder<String>(
-        future: updateSessionTokenFromRemote(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return Center(
-              child: Text(
-                "Session token updated successfully, please refresh"
-              ),
-            );
-          } else if (snapshot.hasError) {
-            return ErrorHandler(error: snapshot.error);
-          } else return Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                'An error occurred, but we are trying to update ' +  
-                'session token from moji, please be patient',
-                softWrap: true,
-              ),
-              CircularProgressIndicator()
-            ],
-          );
-        }
-      );
+          future: updateSessionTokenFromRemote(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Center(
+                child:
+                    Text("Session token updated successfully, please refresh"),
+              );
+            } else if (snapshot.hasError) {
+              return ErrorHandler(error: snapshot.error);
+            } else
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    'An error occurred, but we are trying to update ' +
+                        'session token from moji, please be patient',
+                    softWrap: true,
+                  ),
+                  CircularProgressIndicator()
+                ],
+              );
+          });
     } else {
       return Center(child: Text("Oops! An error occurred : ${this.error}"));
     }
   }
 }
 
-//Toast 显示位置控制 
+//Toast 显示位置控制
 enum ToastPostion {
   top,
   center,

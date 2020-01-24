@@ -15,7 +15,6 @@ class _SearchResultPageState extends State<SearchResultPage> {
   final String id;
   Future<Post> wordData;
 
-
   @override
   void initState() {
     super.initState();
@@ -25,16 +24,15 @@ class _SearchResultPageState extends State<SearchResultPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Post> (
-      future: this.wordData,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return WordCard(wordInfo: snapshot.data);
-        } else if (snapshot.hasError) {
-          return Text("Oops, error: ${snapshot.error}");
-        }
-        return Center(child: CircularProgressIndicator());
-      }
-    );
+    return FutureBuilder<Post>(
+        future: this.wordData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return WordCard(wordInfo: snapshot.data);
+          } else if (snapshot.hasError) {
+            return Text("Oops, error: ${snapshot.error}");
+          }
+          return Center(child: CircularProgressIndicator());
+        });
   }
 }

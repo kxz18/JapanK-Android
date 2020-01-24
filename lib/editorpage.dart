@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:zefyr/zefyr.dart';
-import 'package:quill_delta/quill_delta.dart';
 import 'package:flutter/material.dart';
 
 class EditorPage extends StatefulWidget {
@@ -16,6 +15,7 @@ class _EditorPageState extends State<EditorPage> {
   _EditorPageState(this.placeholder, this.save);
   String placeholder;
   Function(String) save;
+
   /// Allows to control the editor and the document.
   ZefyrController _controller;
 
@@ -58,7 +58,12 @@ class _EditorPageState extends State<EditorPage> {
   /// Loads the document to be edited in Zefyr.
   NotusDocument _loadDocument() {
     //placeholder
-    return NotusDocument.fromJson(json.decode(placeholder));
+    try {
+      return NotusDocument.fromJson(json.decode(placeholder));
+    } catch (e) {
+      //in case it is blank
+      return NotusDocument();
+    }
   }
 
   void _saveDocument(BuildContext context) {

@@ -12,6 +12,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-void main() { 
-  runApp(MyApp()); 
+void main() {
+  runApp(MyApp());
 }

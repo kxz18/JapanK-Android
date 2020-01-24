@@ -15,16 +15,13 @@ class NewsItem extends StatelessWidget {
       title: Text(info.title),
       subtitle: Text(info.categories + '\n' + info.date),
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) {
-            return Scaffold(
-              body: WebView(
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+          return Scaffold(
+            body: WebView(
                 initialUrl: info.pageUrl,
-                javascriptMode: JavascriptMode.unrestricted
-              ),
-            );
-          }
-        ));
+                javascriptMode: JavascriptMode.unrestricted),
+          );
+        }));
       },
     );
   }
@@ -56,7 +53,8 @@ class _NewsListState extends State<NewsList> {
     super.initState();
     allNews = fetchNewsList();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent)
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent)
         setState(() {
           this.length += 10;
         });
@@ -77,12 +75,13 @@ class _NewsListState extends State<NewsList> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return ListView(
-              physics: AlwaysScrollableScrollPhysics(),
-              controller: _scrollController,
-              children: newsListBuilder(snapshot.data, count: length)
-            );
-          } else if (snapshot.hasError) return ErrorHandler(error: snapshot.error);
-          else return Center(child: CircularProgressIndicator());
+                physics: AlwaysScrollableScrollPhysics(),
+                controller: _scrollController,
+                children: newsListBuilder(snapshot.data, count: length));
+          } else if (snapshot.hasError)
+            return ErrorHandler(error: snapshot.error);
+          else
+            return Center(child: CircularProgressIndicator());
         },
       ),
     );

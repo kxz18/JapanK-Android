@@ -18,24 +18,26 @@ class _StarState extends State<Star> {
   Widget build(BuildContext context) {
     inCollection = checkInCollection(wordId);
     return FutureBuilder<bool>(
-      future: inCollection,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return IconButton(
-            icon: snapshot.data ? Icon(Icons.star, color: Colors.yellow) :
-                  Icon(Icons.star_border),
-            iconSize: 2*STDFONTSIZE,
-            onPressed: () {
-              setState(() {
-                if (!(snapshot.data)) addCollection(wordId);
-                else removeCollection(wordId);
-              });
-            }
-          );
-        } else if (snapshot.hasError) {
-          return Text("error: ${snapshot.error}");
-        } else return CircularProgressIndicator();
-      }
-    );
+        future: inCollection,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return IconButton(
+                icon: snapshot.data
+                    ? Icon(Icons.star, color: Colors.yellow)
+                    : Icon(Icons.star_border),
+                iconSize: 2 * STDFONTSIZE,
+                onPressed: () {
+                  setState(() {
+                    if (!(snapshot.data))
+                      addCollection(wordId);
+                    else
+                      removeCollection(wordId);
+                  });
+                });
+          } else if (snapshot.hasError) {
+            return Text("error: ${snapshot.error}");
+          } else
+            return CircularProgressIndicator();
+        });
   }
 }

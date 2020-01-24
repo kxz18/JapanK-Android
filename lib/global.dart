@@ -12,7 +12,8 @@ const Map<String, String> MOJISEARCHHEADERS = {
   //"referer": "https://www.mojidict.com/details/198942871",
   "sec-fetch-mode": "cors",
   "sec-fetch-site": "same-site",
-  "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
+  "user-agent":
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
 };
 
 const Map<String, String> MOJIFETCHHEADERS = {
@@ -29,7 +30,8 @@ const Map<String, String> MOJIFETCHHEADERS = {
   //"referer": "https://www.mojidict.com/details/198942871",
   "sec-fetch-mode": "cors",
   "sec-fetch-site": "same-site",
-  "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
+  "user-agent":
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
 };
 
 const Map<String, String> MOJILOGINHEADERS = {
@@ -43,7 +45,8 @@ const Map<String, String> MOJILOGINHEADERS = {
   'referer': 'https://www.mojidict.com/',
   'accept-encoding': 'gzip, deflate, br',
   'accept-language': 'en-CN,en-US;q=0.9,en;q=0.8,zh;q=0.7,zh-CN;q=0.6',
-  'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36',
+  'user-agent':
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36',
 };
 
 const double STDFONTSIZE = 15;

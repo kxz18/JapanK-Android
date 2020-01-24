@@ -11,31 +11,28 @@ Future<List> fetchSuggestionList(String query) async {
   if (RegExp(r'^\s+').hasMatch(query) || query == "") {
     List<String> ids = await getHistory();
     List<Post> words = [];
-    for (String id in ids) 
-      words.add(await fetchPost(id));
+    for (String id in ids) words.add(await fetchPost(id));
     return words;
   }
-  final searchBody = 
-    json.encode({
-      "searchText": query,
-      "needWords": true,
-      "langEnv":"zh-CN_ja",
-      "_ApplicationId":"E62VyFVLMiW7kvbtVq3p",
-      "_ClientVersion":"js2.7.1",
-      "_InstallationId":"a956f4f4-97e1-5436-d673-c46105a519f5",
-      "_SessionToken": mojiSessionToken
-    });
+  final searchBody = json.encode({
+    "searchText": query,
+    "needWords": true,
+    "langEnv": "zh-CN_ja",
+    "_ApplicationId": "E62VyFVLMiW7kvbtVq3p",
+    "_ClientVersion": "js2.7.1",
+    "_InstallationId": "a956f4f4-97e1-5436-d673-c46105a519f5",
+    "_SessionToken": mojiSessionToken
+  });
   var response = await http.post(
-    "https://api.mojidict.com/parse/functions/search_v3",
-    headers: MOJISEARCHHEADERS,
-    body: searchBody
-  );
-  if (response.statusCode == 502) //do a second post in case temporary network error
-    response = await http.post(
       "https://api.mojidict.com/parse/functions/search_v3",
       headers: MOJISEARCHHEADERS,
-      body: searchBody
-    );
+      body: searchBody);
+  if (response.statusCode ==
+      502) //do a second post in case temporary network error
+    response = await http.post(
+        "https://api.mojidict.com/parse/functions/search_v3",
+        headers: MOJISEARCHHEADERS,
+        body: searchBody);
   if (response.statusCode == 200) {
     List<BriefWord> result = [];
     Map<String, dynamic> jsonified = json.decode(response.body);
@@ -46,10 +43,11 @@ Future<List> fetchSuggestionList(String query) async {
       }
     }
     return result;
-  } else if (response.statusCode == 400) {  //invalid session token
-    throw(400);
+  } else if (response.statusCode == 400) {
+    //invalid session token
+    throw (400);
   } else {
-    throw("failed to connect with moji: ${response.statusCode}, ${response.body}");
+    throw ("failed to connect with moji: ${response.statusCode}, ${response.body}");
   }
 }
 
@@ -62,45 +60,43 @@ class BriefWord {
   final String romaji;
   final String id;
 
-  BriefWord({this.excerpt, this.spell, this.accent, this.kana, this.romaji, this.id});
+  BriefWord(
+      {this.excerpt, this.spell, this.accent, this.kana, this.romaji, this.id});
 
   factory BriefWord.fromJson(Map<String, dynamic> json) {
     return BriefWord(
-      excerpt: json["excerpt"],
-      spell: json["spell"],
-      accent: json["accent"],
-      kana: json["pron"],
-      romaji: json["romaji"],
-      id: json["objectId"]
-    );
+        excerpt: json["excerpt"],
+        spell: json["spell"],
+        accent: json["accent"],
+        kana: json["pron"],
+        romaji: json["romaji"],
+        id: json["objectId"]);
   }
 }
 
-
 //fetch information of the word
 Future<Post> fetchPost(String wordId) async {
-  final _body = 
-    {
-      "wordId": wordId,
-      "_ApplicationId": "E62VyFVLMiW7kvbtVq3p",
-      "_ClientVersion": "js2.7.1",
-      "_InstallationId": "a956f4f4-97e1-5436-d673-c46105a519f5",
-      //"_SessionToken": "r:f194386ae529f49c72f3e7160c3dcada"
-    };
+  final _body = {
+    "wordId": wordId,
+    "_ApplicationId": "E62VyFVLMiW7kvbtVq3p",
+    "_ClientVersion": "js2.7.1",
+    "_InstallationId": "a956f4f4-97e1-5436-d673-c46105a519f5",
+    //"_SessionToken": "r:f194386ae529f49c72f3e7160c3dcada"
+  };
   var response = await http.post(
-    "https://api.mojidict.com/parse/functions/fetchWord_v2",
-    headers: MOJIFETCHHEADERS,
-    body: _body
-  );
-  if (response.statusCode == 502)   //second attempt in case temporary networkerror
-    response = await http.post(
       "https://api.mojidict.com/parse/functions/fetchWord_v2",
       headers: MOJIFETCHHEADERS,
-      body: _body
-    );
+      body: _body);
+  if (response.statusCode ==
+      502) //second attempt in case temporary networkerror
+    response = await http.post(
+        "https://api.mojidict.com/parse/functions/fetchWord_v2",
+        headers: MOJIFETCHHEADERS,
+        body: _body);
   if (response.statusCode == 200) {
     var wordInfoMap = json.decode(response.body)["result"];
-    if (wordInfoMap == null) throw Exception("Word with this id cannot be found");
+    if (wordInfoMap == null)
+      throw Exception("Word with this id cannot be found");
     return Post.fromJson(wordInfoMap);
   } else {
     throw Exception("Failed to load post");
@@ -110,26 +106,32 @@ Future<Post> fetchPost(String wordId) async {
 //class of the information of the word
 class Post {
   final String excerpt;
-  final String spell;           
+  final String spell;
   final String accent;
   final String kana;
   final String romaji;
   final String id;
-  final List<Detail> details;  //different usage
+  final List<Detail> details; //different usage
 
-  Post({this.excerpt, this.spell, this.accent, this.kana, this.romaji, this.id, this.details});
+  Post(
+      {this.excerpt,
+      this.spell,
+      this.accent,
+      this.kana,
+      this.romaji,
+      this.id,
+      this.details});
 
   factory Post.fromJson(Map<String, dynamic> json) {
     //print(json);
-    Post post =  Post(
-      excerpt: json["word"]["excerpt"],
-      spell: json["word"]["spell"],
-      accent: json["word"]["accent"],
-      kana: json["word"]["pron"],
-      romaji: json["word"]["romaji"],
-      id: json["word"]["objectId"],
-      details: []
-    );
+    Post post = Post(
+        excerpt: json["word"]["excerpt"],
+        spell: json["word"]["spell"],
+        accent: json["word"]["accent"],
+        kana: json["word"]["pron"],
+        romaji: json["word"]["romaji"],
+        id: json["word"]["objectId"],
+        details: []);
     if (json["details"] != null) {
       for (var item in json["details"]) {
         post.details.add(Detail.fromJson(item, json));
@@ -141,16 +143,14 @@ class Post {
 
 //class of different usage of the word
 class Detail {
-  final String title;                 //noun, verb ... and etc.
-  final List<SubDetail> subdetails;  //different definations
+  final String title; //noun, verb ... and etc.
+  final List<SubDetail> subdetails; //different definations
 
   Detail({this.title, this.subdetails});
 
-  factory Detail.fromJson(Map<String, dynamic> json, Map<String, dynamic> origin) {
-    Detail detail = Detail(
-      title: json["title"],
-      subdetails: []
-    );
+  factory Detail.fromJson(
+      Map<String, dynamic> json, Map<String, dynamic> origin) {
+    Detail detail = Detail(title: json["title"], subdetails: []);
     if (origin["subdetails"] != null) {
       for (var item in origin["subdetails"]) {
         if (item["detailsId"] == json["objectId"]) {
@@ -164,17 +164,14 @@ class Detail {
 
 //class of diffrent definations of the same usage of the word
 class SubDetail {
-  final String title;             //meaning
-  final List<Example> examples;  //samples
+  final String title; //meaning
+  final List<Example> examples; //samples
 
   SubDetail({this.title, this.examples});
-  
-  factory SubDetail.fromJson(Map<String, dynamic> json, Map<String, dynamic> origin) {
 
-    SubDetail subDetail = SubDetail(
-      title: json["title"],
-      examples: []
-    );
+  factory SubDetail.fromJson(
+      Map<String, dynamic> json, Map<String, dynamic> origin) {
+    SubDetail subDetail = SubDetail(title: json["title"], examples: []);
     if (origin["examples"] != null) {
       for (var item in origin["examples"]) {
         if (item["subdetailsId"] == json["objectId"]) {
@@ -194,10 +191,7 @@ class Example {
   Example({this.title, this.trans});
 
   factory Example.fromJson(Map<String, dynamic> json) {
-    return Example(
-      title: json["title"],
-      trans: json["trans"]
-    );
+    return Example(title: json["title"], trans: json["trans"]);
   }
 }
 
@@ -205,7 +199,8 @@ addHistory(String wordId) async {
   SharedPreferences storage = await SharedPreferences.getInstance();
   List<String> history = storage.getStringList("History");
   if (history == null) history = [];
-  if (history.contains(wordId)) history.remove(wordId); //if already exists, first remove then insert
+  if (history.contains(wordId))
+    history.remove(wordId); //if already exists, first remove then insert
   history.insert(0, wordId);
   if (history.length > globalHistoryCnt) history.removeLast();
   await storage.setStringList("History", history);
@@ -222,8 +217,7 @@ addCollectionFromString(String items) async {
   List<String> allItems = items.split(RegExp(r'\s+'));
   RegExp isNum = RegExp(r'[0-9]+');
   for (String item in allItems)
-    if (isNum.stringMatch(item) == item)
-      await addCollection(item);
+    if (isNum.stringMatch(item) == item) await addCollection(item);
 }
 
 //add word to collection
@@ -249,7 +243,7 @@ removeCollection(String id) async {
   SharedPreferences storage = await SharedPreferences.getInstance();
   List<String> collection = storage.getStringList("Collection");
   collection.remove(id);
-  
+
   print("Removed $id");
 
   await storage.setStringList("Collection", collection);
@@ -293,25 +287,23 @@ changeSessionToken(String sessionToken) async {
 
 //update session token from remote
 Future<String> updateSessionTokenFromRemote() async {
-  final response = await http.post(
-    'https://api.mojidict.com/parse/login',
-    headers: MOJILOGINHEADERS,
-    body: {
-      "username":mojiAccount,
-      "password":mojiPassword,
-      "_method":"GET",
-      "_ApplicationId":"E62VyFVLMiW7kvbtVq3p",
-      "_ClientVersion":"js2.7.1",
-      "_InstallationId": "a956f4f4-97e1-5436-d673-c46105a519f5"
-    }
-  );
+  final response = await http.post('https://api.mojidict.com/parse/login',
+      headers: MOJILOGINHEADERS,
+      body: {
+        "username": mojiAccount,
+        "password": mojiPassword,
+        "_method": "GET",
+        "_ApplicationId": "E62VyFVLMiW7kvbtVq3p",
+        "_ClientVersion": "js2.7.1",
+        "_InstallationId": "a956f4f4-97e1-5436-d673-c46105a519f5"
+      });
   if (response.statusCode == 200) {
-    String newSessionToken =  json.decode(response.body)["sessionToken"];
+    String newSessionToken = json.decode(response.body)["sessionToken"];
     mojiSessionToken = newSessionToken;
     await changeSessionToken(newSessionToken);
     return newSessionToken;
   } else {
-    throw('''Failed to update session Token, try manully.
+    throw ('''Failed to update session Token, try manully.
           Status Code: ${response.statusCode}''');
   }
 }
@@ -349,16 +341,12 @@ Future<void> addNotesFromString(String jsonData) async {
   SharedPreferences storage = await SharedPreferences.getInstance();
   Map<String, dynamic> data = json.decode(jsonData);
   await storage.setStringList("Notes", data["Notes"]);
-  for (var item in data["Contents"]) 
-    await storage.setString(item[0], item[1]);
+  for (var item in data["Contents"]) await storage.setString(item[0], item[1]);
 }
 
 Future<String> outportNotesToString() async {
   SharedPreferences storage = await SharedPreferences.getInstance();
-  Map<String, dynamic> data = {
-    "Notes": [],
-    "Contents": []
-  };
+  Map<String, dynamic> data = {"Notes": [], "Contents": []};
   data["Notes"] = storage.getStringList("Notes");
   for (String id in data["Notes"]) {
     data["Contents"].add([id, storage.getString(id)]);

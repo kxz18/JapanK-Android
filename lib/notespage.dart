@@ -145,13 +145,13 @@ class _NotesPageState extends State<NotesPage> {
               allWordId = allNotesId();
             });
             Toast.toast(context,
-                msg: "Successfully imported from ${file.path}");
+                msg: "Successfully imported from ${file.path}", showTime: 2000);
           }).catchError((error) {
             Toast.toast(context, msg: "$error");
           });
         } else {
           outportNotesToFile("notes_outport.txt").then((filePath) {
-            Toast.toast(context, msg: "Outport to $filePath");
+            Toast.toast(context, msg: "Outport to $filePath", showTime: 5000);
           }).catchError((error) {
             Toast.toast(context, msg: "$error");
           });

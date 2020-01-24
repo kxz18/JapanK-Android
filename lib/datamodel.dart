@@ -261,14 +261,16 @@ Future<Set<String>> allInCollection() async {
 }
 
 Future<String> outportCollection(String fileName) async {
-  String directory = (await getApplicationDocumentsDirectory()).path;
-  File file = File(directory + '\\' + fileName);
+  String directory = (await getExternalStorageDirectory()).path;
+  File file = File(directory + '/' + fileName);
   print(file.path);
   if (!file.existsSync()) await file.create();
   Set<String> items = await allInCollection();
+  String writeData = "";
   for (String item in items) {
-    await file.writeAsString(item + "\n");
+    writeData += item + "\n";
   }
+  await file.writeAsString(writeData + "\n");
   return file.path;
 }
 
@@ -356,7 +358,7 @@ Future<String> outportNotesToString() async {
 
 Future<String> outportNotesToFile(String fileName) async {
   String directory = (await getApplicationDocumentsDirectory()).path;
-  File file = File(directory + '\\' + fileName);
+  File file = File(directory + '/' + fileName);
   print(file.path);
   if (!file.existsSync()) await file.create();
   await file.writeAsString(await outportNotesToString());
